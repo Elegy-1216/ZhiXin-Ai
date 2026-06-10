@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { sendChatMessage, healthCheck } from '../api/chat.js'
+import { sendChatMessage, healthCheck } from '@/api/chat.js'
 
 /**
  * AI 聊天状态管理 composable

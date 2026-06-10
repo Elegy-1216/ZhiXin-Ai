@@ -13,8 +13,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import AppSidebar from './components/AppSidebar.vue'
-import AppTopbar from './components/AppTopbar.vue'
+import AppSidebar from '@/components/layout/AppSidebar.vue'
+import AppTopbar from '@/components/layout/AppTopbar.vue'
 
 const router = useRouter()
 const route = useRoute()

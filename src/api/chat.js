@@ -1,6 +1,6 @@
 /**
  * 知因AI API 封装
- * 通过 Vite proxy 转发到 Python 后端 (localhost:8080)
+ * 通过 Vite proxy 转发到 Node.js 后端 (localhost:8080)
  */
 
 const BASE = '/api'

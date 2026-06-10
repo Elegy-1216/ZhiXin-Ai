@@ -7,15 +7,6 @@ node_modules/
 dist/
 build/
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-*.egg
-.venv/
-venv/
-
 # IDE
 .vscode/
 .idea/

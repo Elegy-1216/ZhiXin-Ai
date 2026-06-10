@@ -34,27 +34,35 @@ DeepSeek V4 Flash 大模型
 
 ```
 zhixin-ai/
-├── server.js               # Node.js API 代理（←→ OpenClaw）
-├── package.json            # Vue 3 + Vite + Express
-├── vite.config.js          # Vite 配置（/api → localhost:8080）
-├── index.html              # Vite 入口
+├── server.js                   # Node.js API 代理（←→ OpenClaw）
+├── package.json                # Vue 3 + Vite + Express
+├── vite.config.js              # Vite 配置（@ 别名 + /api → localhost:8080）
+├── jsconfig.json               # IDE 路径别名（@ → src/）
+├── .editorconfig               # 编辑器统一配置
+├── .env.example                # 环境变量模板
+├── index.html                  # Vite 入口
 └── src/
-    ├── main.js             # 应用入口
-    ├── App.vue             # 根组件
-    ├── style.css           # 全局样式（靛蓝主题）
-    ├── router/index.js     # 7 条路由
-    ├── api/chat.js         # API 封装
+    ├── main.js                 # 应用入口
+    ├── App.vue                 # 根组件（布局）
+    ├── style.css               # 全局样式（靛蓝主题）
+    ├── config/index.js         # 应用配置常量
+    ├── router/index.js         # 7 条路由（懒加载）
+    ├── api/chat.js             # API 封装
     ├── composables/useChat.js  # 聊天状态管理
+    ├── utils/markdown.js       # Markdown → HTML 渲染
     ├── views/
-    │   ├── Dashboard.vue   # 分析看板
-    │   ├── ChatView.vue    # AI 诊断对话（核心）
-    │   └── Placeholder.vue # 占位页
+    │   ├── Dashboard.vue       # 分析看板
+    │   ├── ChatView.vue        # AI 诊断对话（核心）
+    │   └── Placeholder.vue     # 占位页
     └── components/
-        ├── AppSidebar.vue  # 侧边栏
-        ├── AppTopbar.vue   # 顶部栏
-        ├── StatCard.vue    # 统计卡片
-        ├── ChatMessage.vue # 消息气泡
-        └── ErrorTable.vue  # 高频错题表
+        ├── layout/
+        │   ├── AppSidebar.vue  # 侧边栏
+        │   └── AppTopbar.vue   # 顶部栏
+        ├── chat/
+        │   └── ChatMessage.vue # 消息气泡
+        └── dashboard/
+            ├── StatCard.vue    # 统计卡片
+            └── ErrorTable.vue  # 高频错题表
 ```
 
 ## 启动方式

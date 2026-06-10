@@ -122,10 +122,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import StatCard from '../components/StatCard.vue'
-import ChatMessage from '../components/ChatMessage.vue'
-import ErrorTable from '../components/ErrorTable.vue'
-import { useChat } from '../composables/useChat.js'
+import StatCard from '@/components/dashboard/StatCard.vue'
+import ChatMessage from '@/components/chat/ChatMessage.vue'
+import ErrorTable from '@/components/dashboard/ErrorTable.vue'
+import { useChat } from '@/composables/useChat.js'
 
 const router = useRouter()
 const { send, initWelcome, checkHealth, messages } = useChat()
@@ -191,7 +191,7 @@ async function checkApiStatus() {
     const data = await checkHealth()
     apiResult.value = '✅ API 服务在线\n' + JSON.stringify(data, null, 2)
   } catch (e) {
-    apiResult.value = '❌ 连接失败\n' + e.message + '\n请确认服务器已启动: python server.py'
+    apiResult.value = '❌ 连接失败\n' + e.message + '\n请确认服务器已启动: npm run server'
   }
 }
 

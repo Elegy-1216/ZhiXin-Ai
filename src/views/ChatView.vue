@@ -110,8 +110,8 @@
 
 <script setup>
 import { ref, watch, nextTick } from 'vue'
-import ChatMessage from '../components/ChatMessage.vue'
-import { useChat } from '../composables/useChat.js'
+import ChatMessage from '@/components/chat/ChatMessage.vue'
+import { useChat } from '@/composables/useChat.js'
 
 const {
   messages,
@@ -155,7 +155,7 @@ const quickPrompts = [
   '√(a²) = a 为什么不对？',
   '(a+b)² 的正确展开公式',
   '一元二次方程常见错误有哪些？',
-  '请讲解乘法分配律'
+  '请讲解乘法分配律',
 ]
 
 function handleSend() {
@@ -195,7 +195,7 @@ async function testHealth() {
     const data = await checkHealth()
     testResult.value = '✅ API 服务在线\n' + JSON.stringify(data, null, 2)
   } catch (e) {
-    testResult.value = '❌ 连接失败: ' + e.message + '\n请确认: python server.py'
+    testResult.value = '❌ 连接失败: ' + e.message + '\n请确认: npm run server'
   }
 }
 
