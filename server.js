@@ -39,9 +39,10 @@ function callOpenclawAgent(message, sessionId) {
     const args = [
       'agent',
       '--agent', OPENCLAW_AGENT,
+      '--json',
       '--session-id', sessionKey,
       '--message', fullMessage,
-      '--local',
+      
       '--json',
       '--timeout', '120',
     ]
