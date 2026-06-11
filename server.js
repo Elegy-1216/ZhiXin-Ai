@@ -29,7 +29,7 @@ function buildPrompt(userMessage) { return userMessage }
 function callOpenclawAgent(message, sessionId) {
   return new Promise((resolve) => {
     const sid = sessionId || 's' + crypto.randomUUID().slice(0, 12)
-    const sessionKey = `agent:${OPENCLAW_AGENT}:zhixin-${sid}`
+    const sessionKey = `zhixin-${sid}`
     const fullMessage = buildPrompt(message)
 
     console.log(`[API] Calling OpenClaw agent (session: ${sid})`)
@@ -39,8 +39,9 @@ function callOpenclawAgent(message, sessionId) {
     const args = [
       'agent',
       '--agent', OPENCLAW_AGENT,
-      '--session-key', sessionKey,
+      '--session-id', sessionKey,
       '--message', fullMessage,
+      '--local',
       '--json',
       '--timeout', '120',
     ]
@@ -106,7 +107,8 @@ function callOpenclawAgent(message, sessionId) {
       try {
         const data = JSON.parse(stdout)
 
-        if (data.status !== 'ok') {
+        // Linux版OpenClaw直接返回payloads没有status字段，Windows版有status='ok'
+        if (data.status && data.status !== 'ok') {
           resolve({
             success: false,
             error: `Agent 返回异常状态: ${data.status}`,
@@ -116,15 +118,16 @@ function callOpenclawAgent(message, sessionId) {
         }
 
         // Extract response text
-        const payloads = data.result?.payloads || []
+        // Linux版OpenClaw: payloads在顶层; Windows版: 在data.result.payloads
+        const payloads = data.payloads || data.result?.payloads || []
         let replyText = ''
         for (const p of payloads) {
           if (p.text) replyText += p.text
         }
 
-        const agentMeta = data.result?.meta?.agentMeta || {}
+        const agentMeta = data.meta?.agentMeta || data.result?.meta?.agentMeta || {}
         const usage = agentMeta.usage || {}
-        const fullReply = data.result?.finalAssistantVisibleText || replyText
+        const fullReply = data.meta?.finalAssistantVisibleText || data.result?.finalAssistantVisibleText || replyText
 
         console.log(`[API] OK Response received (${fullReply.length} chars, ` +
           `${data.result?.meta?.durationMs || '?'}ms, ` +
