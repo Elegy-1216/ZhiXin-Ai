@@ -5,6 +5,8 @@
  * - 生产模式下提供静态文件服务 (dist/)
  */
 
+require('dotenv').config()
+
 const express = require('express')
 const { spawn } = require('child_process')
 const path = require('path')
@@ -12,10 +14,11 @@ const crypto = require('crypto')
 const fs = require('fs')
 
 // ===== Config =====
-const PORT = 8080
-const OPENCLAW_AGENT = 'math-assistant'
-const OPENCLAW_TIMEOUT = 120_000  // ms
-const OPENCLAW_BIN = 'C:\\Users\\Administrator\\AppData\\Roaming\\npm\\openclaw.cmd'
+const PORT = parseInt(process.env.SERVER_PORT, 10) || 8080
+const OPENCLAW_AGENT = process.env.OPENCLAW_AGENT || 'math-assistant'
+const OPENCLAW_TIMEOUT = parseInt(process.env.OPENCLAW_TIMEOUT, 10) || 120_000  // ms
+const OPENCLAW_BIN = process.env.OPENCLAW_BIN || 'openclaw'
+const IS_WINDOWS = process.platform === 'win32'
 const STATIC_DIR = path.resolve(__dirname, 'dist')
 const IS_PRODUCTION = fs.existsSync(path.join(STATIC_DIR, 'index.html'))
 
@@ -42,10 +45,9 @@ function callOpenclawAgent(message, sessionId) {
       '--timeout', '120',
     ]
 
-    const child = spawn('cmd.exe', ['/c', OPENCLAW_BIN, ...args], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      windowsHide: true,
-    })
+    const child = IS_WINDOWS
+      ? spawn('cmd.exe', ['/c', OPENCLAW_BIN, ...args], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true })
+      : spawn(OPENCLAW_BIN, args, { stdio: ['pipe', 'pipe', 'pipe'] })
 
     let stdout = ''
     let stderr = ''
