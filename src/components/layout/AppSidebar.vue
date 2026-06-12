@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-mark">知</div>
+      <img src="/logo.jpg" class="brand-mark" alt="知因AI" />
       <div class="brand-text">
         <span class="brand-name">知因AI</span>
         <span class="brand-sub">错题诊断</span>
