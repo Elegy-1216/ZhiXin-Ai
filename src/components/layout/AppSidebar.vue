@@ -1,139 +1,132 @@
 <template>
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="logo">知</div>
-      <div>
-        <h1>{{ APP.name }}</h1>
-        <small>{{ APP.platform }}</small>
+    <div class="brand">
+      <div class="brand-mark">知</div>
+      <div class="brand-text">
+        <span class="brand-name">知因AI</span>
+        <span class="brand-sub">错题诊断</span>
       </div>
     </div>
 
-    <nav class="sidebar-nav">
-      <div
-        v-for="item in navItems"
+    <nav class="nav">
+      <router-link
+        v-for="item in NAV_ITEMS"
         :key="item.path"
+        :to="item.path"
         class="nav-item"
-        :class="{ active: active === item.path }"
-        @click="$emit('navigate', item.path)"
+        :class="{ active: $route.path === item.path }"
       >
-        <span class="icon">{{ item.icon }}</span>
-        {{ item.label }}
-      </div>
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </router-link>
     </nav>
 
     <div class="sidebar-footer">
-      <span class="status-dot"></span>
-      OpenClaw 已连接 · AI 在线
+      <span class="status-dot online"></span>
+      <span class="status-text">AI 在线</span>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { NAV_ITEMS, APP } from '@/config'
-
-defineProps({
-  active: { type: String, default: '/' },
-})
-
-defineEmits(['navigate'])
-
-const navItems = NAV_ITEMS
+import { NAV_ITEMS } from '@/config/index.js'
 </script>
 
 <style scoped>
 .sidebar {
-  width: 240px;
-  min-width: 240px;
-  background: #1e293b;
-  color: #fff;
+  width: 200px;
+  background: var(--card);
+  border-right: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
+  padding: 0;
+  flex-shrink: 0;
 }
-
-.sidebar-brand {
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border-light);
 }
-
-.sidebar-brand .logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.sidebar-brand h1 {
   font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+.brand-name {
+  font-size: 14px;
   font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
 }
-
-.sidebar-brand small {
-  display: block;
-  font-size: 11px;
-  color: #94a3b8;
-  font-weight: 400;
+.brand-sub {
+  font-size: 10px;
+  color: var(--text-muted);
 }
-
-.sidebar-nav {
+.nav {
   flex: 1;
-  padding: 12px 0;
-  overflow-y: auto;
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
-
 .nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 20px;
-  color: #94a3b8;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.15s;
-  border-left: 3px solid transparent;
-  user-select: none;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  transition: all 0.12s;
 }
-
 .nav-item:hover {
-  color: #e2e8f0;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-alt);
+  color: var(--ink);
 }
-
 .nav-item.active {
-  color: #fff;
-  background: rgba(79, 70, 229, 0.2);
-  border-left-color: var(--primary);
+  background: var(--ink-light);
+  color: var(--ink);
+  font-weight: 500;
 }
-
-.nav-item .icon {
-  font-size: 18px;
-  width: 22px;
+.nav-icon {
+  font-size: 15px;
+  width: 20px;
   text-align: center;
+  flex-shrink: 0;
 }
-
-.sidebar-footer {
-  padding: 14px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+.nav-label {
   font-size: 12px;
-  color: #64748b;
+}
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-light);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--success);
-  display: inline-block;
+}
+.status-dot.online { background: var(--success); }
+.status-text {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 </style>

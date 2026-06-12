@@ -1,107 +1,58 @@
 <template>
-  <div class="two-col">
-    <!-- Left: AI Chat -->
-    <div class="panel chat-panel">
-      <div class="panel-header">
-        <h3>🧠 AI 诊断对话</h3>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span v-if="isWaiting" style="color:var(--warning);font-size:12px;">⏳ AI 思考中...</span>
-          <span v-else style="color:var(--success);font-size:12px;">● 就绪</span>
-          <button class="btn-outline btn-sm" @click="handleClear">清空对话</button>
-        </div>
-      </div>
-
-      <div class="panel-body chat-area">
-        <!-- Messages -->
-        <div class="chat-messages" ref="messagesContainer">
-          <ChatMessage
-            v-for="msg in messages"
-            :key="msg.id"
-            :role="msg.role"
-            :content="msg.content"
-          />
-
-          <!-- Typing indicator -->
-          <div v-if="isWaiting" class="msg system">
-            <div class="avatar">🤖</div>
-            <div class="bubble typing-bubble">
-              <span class="typing-dot"></span>
-              <span class="typing-dot"></span>
-              <span class="typing-dot"></span>
-              <span class="typing-label">思考中...</span>
-            </div>
+  <div class="chat-page">
+    <div class="chat-main paper-lines">
+      <div class="chat-messages" ref="msgBox">
+        <div v-for="(m, i) in messages" :key="i"
+          class="msg" :class="m.role">
+          <div class="avatar">{{ m.role === 'user' ? '张' : '知' }}</div>
+          <div class="bubble">
+            <div v-html="renderMsg(m)"></div>
+            <div class="meta">{{ m.role === 'user' ? '张老师 · 刚刚' : '知因AI · DeepSeek' }}</div>
           </div>
         </div>
-
-        <!-- Input -->
-        <div class="chat-input-area">
-          <input
-            ref="inputRef"
-            v-model="inputText"
-            type="text"
-            placeholder="输入题目、错题内容或任何问题..."
-            :disabled="isWaiting"
-            @keydown.enter="handleSend"
-            autofocus
-          />
-          <button
-            class="btn-primary"
-            :disabled="isWaiting || !inputText.trim()"
-            @click="handleSend"
-          >
-            {{ isWaiting ? '思考中...' : '发送' }}
-          </button>
+        <div v-if="isWaiting" class="msg system">
+          <div class="avatar">知</div>
+          <div class="bubble typing">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
         </div>
+      </div>
+      <div class="chat-input-area">
+        <input
+          v-model="input"
+          @keydown.enter="send"
+          placeholder="输入你的问题…"
+          :disabled="isWaiting"
+        />
+        <button class="btn-primary" @click="send" :disabled="isWaiting || !input.trim()">
+          发送
+        </button>
       </div>
     </div>
-
-    <!-- Right: Info + API Test -->
-    <div>
-      <!-- Session Info -->
+    <div class="chat-side">
       <div class="panel">
-        <div class="panel-header">
-          <h3>📋 会话信息</h3>
-        </div>
+        <div class="panel-header"><h3>快捷诊断</h3></div>
         <div class="panel-body">
-          <div style="font-size:13px;line-height:1.8;">
-            <div><strong>会话 ID：</strong><code style="font-size:11px;">{{ sessionId }}</code></div>
-            <div><strong>消息数：</strong>{{ messages.length }}</div>
-            <div><strong>模型：</strong>DeepSeek V4 Flash</div>
-            <div><strong>平台：</strong>OpenClaw Gateway</div>
+          <div class="quick-grid">
+            <button v-for="(q, i) in QUICK_PROMPTS" :key="i"
+              class="quick-btn" @click="quickDiagnose(q)">
+              {{ q }}
+            </button>
           </div>
         </div>
       </div>
-
-      <!-- Quick Diagnosis Prompts -->
       <div class="panel">
-        <div class="panel-header">
-          <h3>💡 快速诊断示例</h3>
-        </div>
-        <div class="panel-body" style="display:flex;flex-direction:column;gap:8px;">
-          <button
-            v-for="prompt in quickPrompts"
-            :key="prompt"
-            class="btn-outline btn-sm"
-            style="text-align:left;"
-            :disabled="isWaiting"
-            @click="quickSend(prompt)"
-          >
-            {{ prompt }}
-          </button>
-        </div>
-      </div>
-
-      <!-- API Test Panel -->
-      <div class="panel">
-        <div class="panel-header">
-          <h3>🔌 API 测试</h3>
-        </div>
+        <div class="panel-header"><h3>会话信息</h3></div>
         <div class="panel-body">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-            <button class="btn-outline btn-sm" @click="testHealth">⚡ 健康检查</button>
-            <button class="btn-outline btn-sm" @click="testAI">🔧 AI 连通</button>
+          <div class="info-row"><span class="info-label">会话 ID</span><code class="info-value">{{ sessionId }}</code></div>
+          <div class="info-row"><span class="info-label">消息数</span><span class="info-value">{{ messages.length }}</span></div>
+          <div class="info-row"><span class="info-label">模型</span><span class="info-value">DeepSeek V4 Flash</span></div>
+          <div class="info-row" style="margin-top:8px">
+            <button class="btn-sm btn-outline" @click="clearChat">清除会话</button>
+            <button class="btn-sm btn-outline" @click="checkAi">API 测试</button>
           </div>
-          <div class="api-result">{{ testResult }}</div>
         </div>
       </div>
     </div>
@@ -109,138 +60,146 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
-import ChatMessage from '@/components/chat/ChatMessage.vue'
-import { useChat } from '@/composables/useChat.js'
+import { ref, onMounted, nextTick } from 'vue'
+import { sendChatMessage } from '@/api/chat.js'
+import { QUICK_PROMPTS } from '@/config/index.js'
+import { renderMarkdown } from '@/utils/markdown.js'
 
-const {
-  messages,
-  isWaiting,
-  error,
-  sessionId,
-  send,
-  resetSession,
-  initWelcome,
-  checkHealth
-} = useChat()
+const input = ref('')
+const messages = ref([])
+const isWaiting = ref(false)
+const sessionId = ref('')
+const msgBox = ref(null)
 
-const inputText = ref('')
-const inputRef = ref(null)
-const messagesContainer = ref(null)
-const testResult = ref('// 点击上方按钮测试 API 连接')
+function renderMsg(m) {
+  if (m.shape === 'error') return '<div class="error-msg">' + m.text + '</div>'
+  return renderMarkdown(m.text)
+}
 
-// Auto-scroll to bottom when new messages arrive
-watch(
-  () => messages.value.length,
-  () => {
-    nextTick(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    })
-  }
-)
-
-// Also scroll when waiting state changes (typing indicator)
-watch(isWaiting, () => {
+function scrollToBottom() {
   nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    }
+    const el = msgBox.value
+    if (el) el.scrollTop = el.scrollHeight
   })
-})
+}
 
-const quickPrompts = [
-  '2(x+3) = 2x+3，分析错因',
-  '√(a²) = a 为什么不对？',
-  '(a+b)² 的正确展开公式',
-  '一元二次方程常见错误有哪些？',
-  '请讲解乘法分配律',
-]
-
-function handleSend() {
-  const text = inputText.value.trim()
+async function send() {
+  const text = input.value.trim()
   if (!text || isWaiting.value) return
-
-  // Handle commands
-  if (text === '/clear') {
-    handleClear()
-    return
-  }
-  if (text === '/help') {
-    inputText.value = ''
-    send('列出你的功能和可用命令')
-    return
-  }
-
-  inputText.value = ''
-  send(text)
-}
-
-function quickSend(text) {
-  inputText.value = text
-  handleSend()
-}
-
-function handleClear() {
-  resetSession()
-  initWelcome()
-  inputText.value = ''
-  nextTick(() => inputRef.value?.focus())
-}
-
-async function testHealth() {
-  testResult.value = '⏳ 正在检查...'
+  input.value = ''
+  messages.value.push({ role: 'user', text })
+  isWaiting.value = true
+  scrollToBottom()
   try {
-    const data = await checkHealth()
-    testResult.value = '✅ API 服务在线\n' + JSON.stringify(data, null, 2)
+    const r = await sendChatMessage(text, sessionId.value)
+    sessionId.value = r.sessionId || sessionId.value
+    messages.value.push({ role: 'system', text: r.reply })
   } catch (e) {
-    testResult.value = '❌ 连接失败: ' + e.message + '\n请确认: npm run server'
+    messages.value.push({ role: 'system', text: e.message, shape: 'error' })
   }
+  isWaiting.value = false
+  scrollToBottom()
 }
 
-async function testAI() {
-  testResult.value = '⏳ 正在测试 AI 连通性（约 5-10 秒）...'
-  try {
-    await send('请回复"连通正常"')
-    nextTick(() => {
-      const last = messages.value[messages.value.length - 1]
-      if (last && last.role === 'system' && !last.content.error) {
-        testResult.value = '✅ AI 连通测试通过\n' + JSON.stringify({
-          model: last.content.model || 'unknown',
-          durationMs: last.content.durationMs || 0,
-          usage: last.content.usage || {}
-        }, null, 2)
-      } else {
-        testResult.value = '❌ AI 响应异常，请查看左侧对话'
-      }
-    })
-  } catch (e) {
-    testResult.value = '❌ 请求失败: ' + e.message
-  }
+function quickDiagnose(q) { input.value = q; send() }
+
+function clearChat() {
+  messages.value = []
+  sessionId.value = ''
+  isWaiting.value = false
 }
 
-// Initialize
-initWelcome()
+onMounted(() => {
+  messages.value.push({ role: 'system', text: '你好，我是知因AI。请描述你想诊断的数学题目。' })
+})
 </script>
 
 <style scoped>
-.chat-panel {
+.chat-page {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+  height: calc(100vh - 56px - 44px);
+}
+.chat-main {
   display: flex;
   flex-direction: column;
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  padding: 0 16px 12px;
 }
-
-.typing-bubble {
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
   display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 50px;
-  min-height: 20px;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
 }
-
-.typing-label {
+.chat-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
   font-size: 12px;
+}
+.info-label { color: var(--text-secondary); }
+.info-value { color: var(--text); }
+.info-value code {
+  font-size: 10px;
+  background: var(--bg-alt);
+  padding: 1px 4px;
+  border-radius: 3px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+.quick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.quick-btn {
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
   color: var(--text-secondary);
-  margin-left: 4px;
+  cursor: pointer;
+  background: var(--card);
+  font-family: inherit;
+  line-height: 1.4;
+  transition: all 0.12s;
+}
+.quick-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--ink-light);
+}
+.btn-sm {
+  font-size: 11px; padding: 4px 10px;
+  background: transparent; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; color: var(--text-secondary);
+  font-family: inherit;
+}
+.btn-sm:hover { background: var(--bg-alt); }
+.paper-lines {
+  background-image: repeating-linear-gradient(
+    transparent, transparent 27px, rgba(232,226,216,0.3) 27px, rgba(232,226,216,0.3) 28px
+  );
+}
+@media(max-width:768px){
+  .chat-page{grid-template-columns:1fr}
+  .chat-side{display:none}
 }
 </style>

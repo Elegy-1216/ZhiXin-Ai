@@ -1,119 +1,79 @@
 <template>
-  <div>
-    <!-- Stats -->
+  <div class="dashboard">
     <div class="stats-grid">
-      <StatCard
-        icon="📚"
-        icon-bg="#eef2ff"
-        icon-color="var(--primary)"
-        label="累计错题"
-        :value="stats.totalQuestions.toLocaleString()"
-        trend="↑ 12% 较上周"
-        trend-dir="up"
-      />
-      <StatCard
-        icon="❌"
-        icon-bg="#fef2f2"
-        icon-color="var(--danger)"
-        label="高频错误"
-        :value="stats.topError"
-        trend="↑ 23% 需关注"
-        trend-dir="down"
-      />
-      <StatCard
-        icon="✅"
-        icon-bg="#ecfdf5"
-        icon-color="var(--success)"
-        label="诊断完成"
-        :value="stats.diagnosed.toLocaleString()"
-        :trend="`${stats.diagnoseRate}% 覆盖率`"
-        trend-dir="up"
-      />
-      <StatCard
-        icon="🎯"
-        icon-bg="#fffbeb"
-        icon-color="var(--warning)"
-        label="薄弱知识点"
-        :value="stats.weakPoints"
-        trend="↓ 3 较上周"
-        trend-dir="down"
-      />
+      <div class="stat-card">
+        <div class="stat-label">累计错题</div>
+        <div class="stat-value">47</div>
+        <div class="stat-trend up">较上周 +12</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">高频错题</div>
+        <div class="stat-value">8</div>
+        <div class="stat-trend down">同类错误反复出现</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">已诊断</div>
+        <div class="stat-value">32</div>
+        <div class="stat-trend up">诊断率 68%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">薄弱知识点</div>
+        <div class="stat-value">5</div>
+        <div class="stat-trend">一元二次方程 · 因式分解</div>
+      </div>
     </div>
 
-    <!-- Two columns: Chat preview + Analysis -->
     <div class="two-col">
-      <!-- Quick AI Console -->
-      <div class="panel chat-panel">
+      <div class="panel">
         <div class="panel-header">
-          <h3>🧠 AI 诊断控制台</h3>
-          <small style="color:var(--text-secondary);font-size:12px;">
-            与 OpenClaw · DeepSeek 交互
-          </small>
+          <h3>最近诊断</h3>
+          <button class="btn-sm" @click="$router.push('/chat')">查看全部 →</button>
         </div>
-        <div class="panel-body chat-area">
-          <div class="chat-messages">
-            <ChatMessage
-              v-for="msg in previewMessages"
-              :key="msg.id"
-              :role="msg.role"
-              :content="msg.content"
-            />
-          </div>
-          <div class="chat-input-area">
-            <input
-              v-model="quickInput"
-              type="text"
-              placeholder="输入题目/错题，快速诊断..."
-              @keydown.enter="quickSend"
-            />
-            <button class="btn-primary" @click="quickSend">诊断</button>
-            <button class="btn-outline" @click="goToChat">完整对话 →</button>
-          </div>
+        <div class="panel-body" style="padding:0">
+          <table class="data-table">
+            <thead>
+              <tr><th>题目</th><th>错误率</th><th>状态</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>2(x+3)=2x+3</td><td><span class="red-tag">高</span></td><td>待诊断 →</td></tr>
+              <tr><td>√(a²)=a</td><td><span class="red-tag">高</span></td><td>✅ 已诊断</td></tr>
+              <tr><td>(a+b)²</td><td>中</td><td>待诊断 →</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Right column -->
-      <div>
-        <!-- Knowledge Graph -->
-        <div class="panel">
-          <div class="panel-header">
-            <h3>📚 知识点分析</h3>
-            <small style="color:var(--text-secondary);font-size:12px;">
-              知识图谱 · 薄弱点定位
-            </small>
-          </div>
-          <div class="panel-body">
-            <div class="kg-placeholder">
-              <div class="big-icon">🔬</div>
-              <div>AI 知识图谱将在此渲染</div>
-              <small>基于 DeepSeek 大模型实时分析</small>
-            </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>知识图谱</h3>
+          <span class="badge">建设中</span>
+        </div>
+        <div class="panel-body">
+          <div class="kg-placeholder">
+            <div class="kg-icon">⊞</div>
+            <p>知识点关联图谱</p>
+            <span>完成更多诊断后自动生成</span>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Error frequency table -->
-        <div class="panel">
-          <div class="panel-header">
-            <h3>📊 班级高频错题</h3>
-          </div>
-          <div class="panel-body" style="padding:0;">
-            <ErrorTable :items="errorItems" />
-          </div>
+    <div class="panel">
+      <div class="panel-header">
+        <h3>API 状态</h3>
+      </div>
+      <div class="panel-body">
+        <div class="api-row">
+          <span class="api-label">后端服务</span>
+          <span class="api-value ok">● 运行中</span>
+          <button class="btn-sm btn-outline" @click="checkApi">测试连接</button>
         </div>
-
-        <!-- API Status -->
-        <div class="panel">
-          <div class="panel-header">
-            <h3>🔌 API 状态</h3>
-          </div>
-          <div class="panel-body">
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-              <button class="btn-outline btn-sm" @click="checkApiStatus">⚡ 系统状态</button>
-              <button class="btn-outline btn-sm" @click="quickTestAI">🔧 AI 连通测试</button>
-            </div>
-            <div class="api-result">{{ apiResult }}</div>
-          </div>
+        <div class="api-row">
+          <span class="api-label">AI 模型</span>
+          <span class="api-value ok">● DeepSeek V4 Flash</span>
+          <button class="btn-sm btn-outline" @click="checkAi">诊断测试</button>
         </div>
+        <div class="api-result" v-if="apiLog">{{ apiLog }}</div>
       </div>
     </div>
   </div>
@@ -121,109 +81,80 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import StatCard from '@/components/dashboard/StatCard.vue'
-import ChatMessage from '@/components/chat/ChatMessage.vue'
-import ErrorTable from '@/components/dashboard/ErrorTable.vue'
-import { useChat } from '@/composables/useChat.js'
+import { healthCheck, sendChatMessage } from '@/api/chat.js'
 
-const router = useRouter()
-const { send, initWelcome, checkHealth, messages } = useChat()
+const apiLog = ref('')
 
-const quickInput = ref('')
-const apiResult = ref('// 点击上方按钮测试 API 连接')
-
-// Stats data (placeholder)
-const stats = {
-  totalQuestions: 1284,
-  topError: '分配律',
-  diagnosed: 1152,
-  diagnoseRate: 89.7,
-  weakPoints: 8
-}
-
-// Error items (placeholder)
-const errorItems = [
-  { id: 1, question: '2(x+3)=2x+3', count: 24, rate: '65%', rateColor: 'var(--danger)', diagnosed: true },
-  { id: 2, question: '√(a²)=a 恒成立', count: 18, rate: '58%', rateColor: 'var(--danger)', diagnosed: false },
-  { id: 3, question: '(a+b)²=a²+b²', count: 15, rate: '52%', rateColor: 'var(--warning)', diagnosed: false }
-]
-
-// Preview messages
-const previewMessages = [
-  {
-    id: 1,
-    role: 'system',
-    content: { text: '您好！我是 **知因AI**，基于 **OpenClaw** 平台 + **DeepSeek 大模型** 的智能错题诊断系统。\n请上传错题或输入题目，我为您进行 AI 错因诊断。', isWelcome: true }
-  },
-  {
-    id: 2,
-    role: 'system',
-    content: { text: '**系统状态**\n- OpenClaw API 网关：在线\n- DeepSeek V4 Flash：就绪\n- 数据服务：OpenClaw Data Service', isStatus: true }
-  },
-  {
-    id: 3,
-    role: 'user',
-    content: '2(x+3) = 2x+3，这道题学生做错了，请分析原因。'
-  },
-  {
-    id: 4,
-    role: 'system',
-    content: { text: '**错因诊断报告**\n\n**题目：** 2(x+3) = 2x+3\n\n**错误定位：**\n第1步：分配律应用错误\n  正确：2(x+3) = 2x + 6\n  学生：2(x+3) = 2x + 3\n\n**错误分类：**\n- 类型：概念理解错误\n- 子类：乘法分配律掌握不足\n\n**AI 讲解：**\n分配律指的是 a(b+c) = ab + ac。\n这里 a=2, b=x, c=3，所以 2(x+3) = 2·x + 2·3 = 2x + 6。\n常数 3 也要乘以 2，不能遗漏哦！', model: 'DeepSeek', durationMs: 1200 }
-  }
-]
-
-function quickSend() {
-  if (!quickInput.value.trim()) return
-  send(quickInput.value)
-  quickInput.value = ''
-  // Navigate to full chat after quick interaction
-  setTimeout(() => router.push('/chat'), 500)
-}
-
-function goToChat() {
-  router.push('/chat')
-}
-
-async function checkApiStatus() {
-  apiResult.value = '⏳ 正在检查...'
+async function checkApi() {
+  apiLog.value = '检查中…'
   try {
-    const data = await checkHealth()
-    apiResult.value = '✅ API 服务在线\n' + JSON.stringify(data, null, 2)
+    const r = await healthCheck()
+    apiLog.value = JSON.stringify(r, null, 2)
   } catch (e) {
-    apiResult.value = '❌ 连接失败\n' + e.message + '\n请确认服务器已启动: npm run server'
+    apiLog.value = '连接失败: ' + e.message
   }
 }
-
-async function quickTestAI() {
-  apiResult.value = '⏳ 正在测试 AI 连通性...'
+async function checkAi() {
+  apiLog.value = '请求中…'
   try {
-    await send('回复"OK"')
-    // Wait briefly and check last message
-    setTimeout(() => {
-      const last = messages.value[messages.value.length - 1]
-      if (last && last.role === 'system' && !last.content.error) {
-        apiResult.value = '✅ AI 连通测试通过\n' + JSON.stringify({
-          model: last.content.model,
-          durationMs: last.content.durationMs,
-          usage: last.content.usage
-        }, null, 2)
-      } else {
-        apiResult.value = '❌ AI 响应异常'
-      }
-    }, 500)
+    const r = await sendChatMessage('测试')
+    apiLog.value = "AI 响应成功 (" + r.durationMs + "ms) " + r.reply.slice(0, 200)
   } catch (e) {
-    apiResult.value = '❌ 连接失败\n' + e.message
+    apiLog.value = 'AI 调用失败: ' + e.message
   }
 }
-
-// Init
-initWelcome()
 </script>
 
 <style scoped>
-.chat-panel {
-  display: flex;
-  flex-direction: column;
+.dashboard { padding: 0; }
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
 }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--ink);
+  opacity: 0.12;
+}
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.stat-trend { font-size: 11px; margin-top: 4px; color: var(--text-secondary); }
+.stat-trend.up { color: var(--success); }
+.stat-trend.down { color: var(--danger); }
+.badge {
+  font-size: 10px; color: var(--text-muted);
+  background: var(--bg-alt); padding: 2px 8px; border-radius: 10px;
+}
+.kg-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 160px;
+  background: var(--bg-alt); border-radius: var(--radius);
+  border: 1.5px dashed var(--border);
+  color: var(--text-secondary); font-size: 12px; gap: 4px;
+}
+.kg-icon { font-size: 28px; opacity: 0.4; margin-bottom: 4px; }
+.api-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 0; font-size: 12px;
+}
+.api-label { color: var(--text-secondary); min-width: 80px; }
+.api-value { font-weight: 500; }
+.api-value.ok { color: var(--success); }
+.btn-sm {
+  font-size: 11px; padding: 4px 10px;
+  background: transparent; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; color: var(--text-secondary);
+  font-family: inherit; margin-left: auto;
+}
+.btn-sm:hover { background: var(--bg-alt); }
 </style>

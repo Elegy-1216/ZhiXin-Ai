@@ -1,67 +1,55 @@
 <template>
   <header class="topbar">
-    <h2>{{ title }}</h2>
-    <div class="user-area">
-      <span class="badge">v4.0</span>
-      <span class="user-name">张老师</span>
+    <h2 class="topbar-title">{{ title }}</h2>
+    <div class="topbar-right">
+      <span class="badge">v1.0</span>
       <div class="user-avatar">张</div>
     </div>
   </header>
 </template>
 
 <script setup>
-defineProps({
-  title: { type: String, default: '知因AI' }
-})
+defineProps({ title: String })
 </script>
 
 <style scoped>
 .topbar {
-  height: 56px;
-  min-height: 56px;
-  border-bottom: 1px solid var(--border);
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 20px;
   background: var(--card);
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
 }
-
-.topbar h2 {
-  font-size: 15px;
+.topbar-title {
+  font-size: 14px;
   font-weight: 600;
+  color: var(--ink);
 }
-
-.user-area {
+.topbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
-
-.user-name {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
 .badge {
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  background: var(--primary-light);
-  color: var(--primary);
-  font-weight: 500;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  padding: 2px 8px;
+  border-radius: 10px;
 }
-
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--ink);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
 }
 </style>
