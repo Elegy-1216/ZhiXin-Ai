@@ -62,11 +62,12 @@ export function useChat() {
     try {
       const result = await sendChatMessage(text, sessionId.value)
 
+      const replyData = result.data || result
       addMessage('system', {
-        text: result.reply,
-        model: result.model,
-        durationMs: result.durationMs,
-        usage: result.usage
+        text: replyData.reply || result.reply,
+        model: replyData.model,
+        durationMs: replyData.durationMs,
+        usage: replyData.usage,
       })
     } catch (e) {
       error.value = e.message || '网络错误，请确认服务器已启动'
