@@ -35,7 +35,7 @@ const routes = [
   {
     path: '/teacher',
     name: 'teacher',
-    component: () => import('@/views/Placeholder.vue'),
+    component: () => import('@/views/TeacherLogin.vue'),
     meta: { title: '教师端' },
   },
   {
