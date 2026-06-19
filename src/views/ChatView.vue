@@ -92,8 +92,9 @@ async function send() {
   scrollToBottom()
   try {
     const r = await sendChatMessage(text, sessionId.value)
-    sessionId.value = r.sessionId || sessionId.value
-    messages.value.push({ role: 'system', text: r.reply })
+    const rd = r.data || r
+    sessionId.value = rd.sessionId || sessionId.value
+    messages.value.push({ role: 'system', text: rd.reply })
   } catch (e) {
     messages.value.push({ role: 'system', text: e.message, shape: 'error' })
   }
