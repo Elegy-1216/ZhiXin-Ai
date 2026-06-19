@@ -3,12 +3,13 @@
     <h2 class="topbar-title">{{ title }}</h2>
     <div class="topbar-right">
       <span class="badge">v1.0</span>
-      <div class="user-avatar">张</div>
+      <UserMenu />
     </div>
   </header>
 </template>
 
 <script setup>
+import UserMenu from "@/components/layout/UserMenu.vue"
 defineProps({ title: String })
 </script>
 
@@ -40,16 +41,5 @@ defineProps({ title: String })
   padding: 2px 8px;
   border-radius: 10px;
 }
-.user-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 500;
-}
+
 </style>
