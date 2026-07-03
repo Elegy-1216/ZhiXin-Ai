@@ -1,8 +1,8 @@
-﻿{
+{
     "name":  "zhixin-ai",
     "version":  "1.0.0",
     "private":  true,
-    "description":  "鐭ュ洜AI 路 鏅鸿兘閿欓璇婃柇骞冲彴",
+    "description":  "閻儱娲淎I 璺?閺呴缚鍏橀柨娆擃暯鐠囧﹥鏌囬獮鍐插酱",
     "scripts":  {
                     "dev":  "vite",
                     "build":  "vite build",
@@ -21,7 +21,7 @@
                          "sequelize":  "^6.37.8",
                          "vue":  "^3.5.13",
                          "vue-router":  "^4.5.0",
-                         "better-sqlite3":  "^12.11.1"
+                         "sqlite3":  "^5.1.7"
                      },
     "devDependencies":  {
                             "@vitejs/plugin-vue":  "^5.2.3",
