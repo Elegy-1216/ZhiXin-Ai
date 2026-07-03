@@ -1,27 +1,13 @@
-/**
+﻿/**
  * Sequelize 实例
- * - 初始化连接池（延迟连接，首次 query 时自动连）
+ * - 初始化 SQLite 连接（延迟连接，首次 query 时自动连）
  * - 自动加载 models 目录下的所有模型
  * - 导出 sequelize 实例和 Sequelize 类
  */
 const { Sequelize } = require('sequelize')
 const config = require('./config')
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    port: config.port,
-    dialect: config.dialect,
-    pool: config.pool,
-    timezone: config.timezone,
-    logging: config.logging,
-    define: config.define,
-    dialectOptions: config.dialectOptions,
-  }
-)
+const sequelize = new Sequelize(config)
 
 // 自动加载模型
 const models = {}
@@ -55,10 +41,10 @@ sequelize.models = models
 async function testConnection() {
   try {
     await sequelize.authenticate()
-    console.log('[DB] SQL Server 连接成功')
+    console.log(`[DB] SQLite 连接成功 (${config.storage})`)
     return true
   } catch (err) {
-    console.error('[DB] SQL Server 连接失败:', err.message)
+    console.error('[DB] SQLite 连接失败:', err.message)
     return false
   }
 }
