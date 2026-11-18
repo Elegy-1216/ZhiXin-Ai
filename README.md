@@ -1,6 +1,6 @@
 # 知因AI · 智能错题诊断平台
 
-基于 **OpenClaw** 平台 + **DeepSeek 大模型** 构建的 AI 错题诊断平台，后端用 Node.js、前端用 Vue 3。
+基于 平台 + **DeepSeek 大模型** 构建的 AI 错题诊断平台，后端用 Node.js、前端用 Vue 3。
 
 ---
 
@@ -86,10 +86,8 @@ npm run dev
 
 ## Prompt 工程
 
-通过 OpenClaw 的 `math-assistant` agent 加载数学教师指令：
+通过 OpenClaw 的 `assistant` agent 加载指令：
 
-- **角色：** 经验丰富的数学教师，严谨不失耐心
-- **错题分析：** 1)错误步骤 2)错误原因 3)关联知识点 4)重新讲解
-- **语言风格：** 多用"我们"，少用"错了"，鼓励独立思考
+
 
 Workspace 配置位于 `~/.openclaw/workspace-math-assistant/`
